@@ -1,0 +1,34 @@
+{
+  "name": "3d-geometry-simplify",
+  "version": "1.0.3",
+  "description": "a simplify algorithm to reduce trangles number.",
+  "main": "index.js",
+  "scripts": {
+    "gltfSimplifyTest": "node ./src/bin/3DGeometrySimplify.js gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -q 0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1147079942/3D-geometry-simplify.git"
+  },
+  "keywords": [
+    "3D",
+    "geometry",
+    "simplify"
+  ],
+  "author": "Min.H",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "commander": "^4.0.1",
+    "three": "^0.111.0"
+  },
+  "bugs": {
+    "url": "https://github.com/1147079942/3D-geometry-simplify/issues"
+  },
+  "homepage": "https://github.com/1147079942/3D-geometry-simplify#readme",
+  "devDependencies": {
+    "node": "^13.1.0"
+  },
+  "bin": {
+    "3DGeometrySimplify": "./src/bin/3DGeometrySimplify.js"
+  }
+}
