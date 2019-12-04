@@ -62,8 +62,10 @@ function simplify(gltf, quality) {
                 // componentType对应数据类型，除了index其余默认float处理
                 let geometryBuffer = new SimplifyGeometry.GeometryBuffer(positionBuffer, normalBuffer, uvBuffer, indicesBuffer, indicesType === 5123);
 
-                let newGeometryBuffer = SimplifyGeometry.runDecimation(geometryBuffer, quality);
-
+                let geometryResource = SimplifyGeometry.initGeometry(geometryBuffer);
+                let newGeometryResource = SimplifyGeometry.runDecimation(geometryResource, quality);
+                let newGeometryBuffer = SimplifyGeometry.reconstructBuffer(newGeometryResource.triangles,indicesType === 5123);
+                
                 var newPositionBuffer = newGeometryBuffer.position;
                 var newIndicesBuffer = newGeometryBuffer.index;
                 var newNormalBuffer = newGeometryBuffer.normal;

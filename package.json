@@ -1,6 +1,6 @@
 {
   "name": "3d-geometry-simplify",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "a simplify algorithm to reduce trangles number.",
   "main": "index.js",
   "scripts": {

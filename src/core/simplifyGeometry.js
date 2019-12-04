@@ -10,14 +10,11 @@ Vector3.prototype.toString = function () {
 
 /**
  *
- * @param geometryBuffer : GeometryBuffer
+ * @param geometryBuffer : GeometryResource
  * @param quality : number
- * @returns {GeometryBuffer}
+ * @returns {GeometryResource}
  */
-function runDecimation(geometryBuffer, quality) {
-    var indexIsUInt16 = geometryBuffer.indexIsUInt16;
-
-    let geometryResource = initGeometry(geometryBuffer);
+function runDecimation(geometryResource, quality) {
 
     let triangles = geometryResource.triangles;
     let references = geometryResource.references;
@@ -119,7 +116,7 @@ function runDecimation(geometryBuffer, quality) {
     }
     updateMesh(geometryResource, false);
 
-    return reconstructBuffer(geometryResource.triangles, indexIsUInt16);
+    return geometryResource;
 }
 
 function initGeometry(geometryBuffer) {
@@ -167,6 +164,14 @@ function initGeometry(geometryBuffer) {
             }
         }
 
+        var vertexKey = decimationVertex.position.x + ":" + decimationVertex.position.y + ":" + decimationVertex.position.z;
+        let vertexIndex = vertexIndexMap.get(vertexKey);
+
+        if (vertexIndex) {
+            return vertices[vertexIndex]
+        }
+        vertexIndexMap.set(vertexKey, index);
+
         vertices[index] = decimationVertex;
 
         // FS.appendFile("temp.log", decimationVertex.position.toString() + "\r\n", () => {
@@ -186,6 +191,7 @@ function initGeometry(geometryBuffer) {
     let uv = readFloat(uvBuffer);
     let indices = readIndices(indicesBuffer);
     let vertices = [];
+    let vertexIndexMap = new Map();
     var triangles = [];
 
     // position.forEach(p => {
@@ -225,27 +231,32 @@ function initGeometry(geometryBuffer) {
 
 function reconstructBuffer(triangles, indexIsUInt16) {
 
-    var vertexIndex = [];
+    var vertexIndex = new Map();
     var index = [];
     var positions = [];
     var normals = [];
     var uvs = [];
-    console.log(triangles.length);
+    var vertexCount = 0;
+    console.log("triangles number after simply " + triangles.length);
     triangles.forEach((triangle) => {
-        // console.log(triangle.vertices[0].id + "," + triangle.vertices[1].id + "," + triangle.vertices[2].id)
         // FS.appendFileSync("temp.log", triangle.vertices[0].id + "," + triangle.vertices[1].id + "," + triangle.vertices[2].position.toString() + "\r\n", () => {});
         triangle.vertices.forEach((vertex) => {
             let id = vertex.id;
             let position = vertex.position;
-            let newIndex = vertexIndex.indexOf(id);
-            if (newIndex === -1) {
-                vertexIndex.push(id);
+            let newIndex = vertexIndex.get(id);
+            if (!newIndex) {
+                vertexIndex.set(id, vertexCount);
                 positions.push(position.x);
                 positions.push(position.y);
                 positions.push(position.z);
-                normals = normals.concat(vertex.normal);
-                uvs = uvs.concat(vertex.uv);
-                index.push(vertexIndex.length - 1)
+                vertex.normal && vertex.normal.forEach(n => {
+                    normals.push(n)
+                });
+                vertex.uvs && vertex.uvs.forEach(n => {
+                    uvs.push(n)
+                });
+                index.push(vertexCount);
+                vertexCount++;
             } else {
                 index.push(newIndex)
             }
@@ -566,5 +577,8 @@ function dataFromNumbers(a, b, c, d) {
 
 module.exports = {
     runDecimation,
-    GeometryBuffer
+    GeometryBuffer,
+    GeometryResource,
+    initGeometry,
+    reconstructBuffer
 };
