@@ -19,7 +19,7 @@ function runDecimation(geometryResource, quality) {
     let triangles = geometryResource.triangles;
     let references = geometryResource.references;
 
-    console.log(triangles.length);
+    console.log("triangles number before simply " + triangles.length);
 
     var targetCount = ~~(triangles.length * quality);
     var deletedTriangles = 0;
@@ -151,18 +151,8 @@ function initGeometry(geometryBuffer) {
         let uvOffset = 2 * index;
         let vector3 = new Vector3(position[offset], position[offset + 1], position[offset + 2]);
         let decimationVertex = new DecimationVertex(vector3, index);
-        decimationVertex.normal = [normal[offset], normal[offset + 1], normal[offset + 2]];
+        decimationVertex.normal = new THREE.Vector3(normal[offset], normal[offset + 1], normal[offset + 2]);
         decimationVertex.uv = [uv[uvOffset], uv[uvOffset + 1]];
-
-        for (let i = 0; i < vertices.length; i++) {
-            const v = vertices[i];
-            if (!v) continue;
-            if (v.position.x === decimationVertex.position.x
-                && v.position.y === decimationVertex.position.y
-                && v.position.z === decimationVertex.position.z) {
-                return v;
-            }
-        }
 
         var vertexKey = decimationVertex.position.x + ":" + decimationVertex.position.y + ":" + decimationVertex.position.z;
         let vertexIndex = vertexIndexMap.get(vertexKey);
@@ -229,6 +219,29 @@ function initGeometry(geometryBuffer) {
     return new GeometryResource(triangles, vertices, []);
 }
 
+function rebuildNormal(geometryResource) {
+    var vertexNormal = new Map();
+
+    geometryResource.triangles.forEach(triangle => {
+        let normal = new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(triangle.vertices[1].position, triangle.vertices[0].position),
+            new THREE.Vector3().subVectors(triangle.vertices[2].position, triangle.vertices[1].position)).normalize();
+        triangle.vertices.forEach(vertex => {
+            let normalArray = vertexNormal.get(vertex);
+            if (!normalArray) vertexNormal.set(vertex, [normal]);
+            else normalArray.push(normal);
+        })
+    });
+
+    vertexNormal.forEach((normals, vertex) => {
+        let newNormal = new THREE.Vector3(0, 0, 0);
+        normals.forEach((n) => {
+            newNormal.add(n);
+        });
+        newNormal.normalize();
+        vertex.normal = newNormal;
+    })
+}
+
 function reconstructBuffer(triangles, indexIsUInt16) {
 
     var vertexIndex = new Map();
@@ -249,9 +262,9 @@ function reconstructBuffer(triangles, indexIsUInt16) {
                 positions.push(position.x);
                 positions.push(position.y);
                 positions.push(position.z);
-                vertex.normal && vertex.normal.forEach(n => {
-                    normals.push(n)
-                });
+                normals.push(vertex.normal.x);
+                normals.push(vertex.normal.y);
+                normals.push(vertex.normal.z);
                 vertex.uvs && vertex.uvs.forEach(n => {
                     uvs.push(n)
                 });
@@ -580,5 +593,6 @@ module.exports = {
     GeometryBuffer,
     GeometryResource,
     initGeometry,
-    reconstructBuffer
+    reconstructBuffer,
+    rebuildNormal
 };
