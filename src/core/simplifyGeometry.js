@@ -10,7 +10,7 @@ Vector3.prototype.toString = function () {
 
 /**
  *
- * @param geometryBuffer : GeometryResource
+ * @param geometryResource : GeometryResource
  * @param quality : number
  * @returns {GeometryResource}
  */
@@ -265,7 +265,7 @@ function reconstructBuffer(triangles, indexIsUInt16) {
                 normals.push(vertex.normal.x);
                 normals.push(vertex.normal.y);
                 normals.push(vertex.normal.z);
-                vertex.uvs && vertex.uvs.forEach(n => {
+                vertex.uv && vertex.uv.forEach(n => {
                     uvs.push(n)
                 });
                 index.push(vertexCount);
@@ -489,10 +489,10 @@ function vertexError(q, point) {
 }
 
 /**
- * @param position : ArrayBuffer
- * @param normal : ArrayBuffer
- * @param uv : ArrayBuffer
- * @param index : ArrayBuffer
+ * @param position : Buffer
+ * @param normal : Buffer
+ * @param uv : Buffer
+ * @param index : Buffer
  * @param indexIsUInt16 : boolean
  * @constructor
  */

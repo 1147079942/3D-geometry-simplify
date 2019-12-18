@@ -36,7 +36,7 @@
 
 7.model on line check
 
-  <a href="http://suit_min_h.gitee.io/model_viewer/http://suit_min_h.gitee.io/model_viewer">http://suit_min_h.gitee.io/model_viewer/http://suit_min_h.gitee.io/model_viewer</a>
+  [model_viewer](http://suit_min_h.gitee.io/model_viewer/)
   
   support format 
   
