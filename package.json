@@ -4,7 +4,8 @@
   "description": "a simplify algorithm to reduce trangles number.",
   "main": "index.js",
   "scripts": {
-    "gltfSimplifyTest": "node ./src/bin/3DGeometrySimplify.js gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -q 0.5"
+    "gltfSimplifyTest": "node ./src/bin/3DGeometrySimplify.js gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -q 0.5",
+    "objSimplifyTest": "node ./src/bin/3DGeometrySimplify.js obj -f ./resource/model.obj  -o ./resource/model_1.obj -q 0.1"
   },
   "repository": {
     "type": "git",

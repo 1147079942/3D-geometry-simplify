@@ -27,11 +27,13 @@
  <li>
   1.gltf
  </li>
+ <li>
+  2.obj
+ </li>
  
  6.future
  
  support more open format model file
- <li>obj</li>
  <li>fbx</li>
 
 7.model on line check

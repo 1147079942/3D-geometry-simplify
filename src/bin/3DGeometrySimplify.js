@@ -2,6 +2,7 @@
 let program = require("commander");
 let pkg = require("../../package");
 let GLTFHandler = require("../handler/gltfHandler");
+let OBJHandler = require("../handler/obj/objHandler");
 let FS = require("fs");
 
 // shared parameter
@@ -24,6 +25,14 @@ program
         console.log("simplify finish")
     });
 
+program
+    .command("obj")
+    .version(pkg.version)
+    .description("simplify obj")
+    .action((command) => {
+        objSimplify();
+        console.log("simplify finish")
+    });
 // new program add like follow code
 // program
 //     .command("name")
@@ -46,6 +55,21 @@ function gltfSimplify() {
     let gltfResult = GLTFHandler.simplify(gltfJson, quality);
 
     FS.writeFile(outputPath, JSON.stringify(gltfResult), (error) => {
+        if (error)
+            console.log(error)
+    })
+}
+
+function objSimplify() {
+    let outputPath = program.outputPath;
+    let file = program.file;
+    let quality = program.quality;
+
+    let obj = FS.readFileSync(file, 'utf8');
+
+    let objResult = OBJHandler.simplify(obj, quality);
+
+    FS.writeFile(outputPath, objResult, (error) => {
         if (error)
             console.log(error)
     })
