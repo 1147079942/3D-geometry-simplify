@@ -2,6 +2,7 @@
 let program = require("commander");
 let pkg = require("../../package");
 let GLTFHandler = require("../handler/gltfHandler");
+let OBJHandler = require("../handler/obj/objHandler");
 let FS = require("fs");
 
 // shared parameter
@@ -10,14 +11,28 @@ program
     .option("-o, --outputPath [value]", "the path to write output file", "")
     .option("-q, --quality <n>", "the quality of the simplified gltf,it should between 0 and 1", parseFloat);
 
+program.parse(process.argv);
+if (!program.outputPath || !program.file || !program.quality) {
+    program.help();
+}
+
 program
     .command("gltf")
     .version(pkg.version)
     .description("simplify gltf")
     .action((command) => {
         gltfSimplify();
+        console.log("simplify finish")
     });
 
+program
+    .command("obj")
+    .version(pkg.version)
+    .description("simplify obj")
+    .action((command) => {
+        objSimplify();
+        console.log("simplify finish")
+    });
 // new program add like follow code
 // program
 //     .command("name")
@@ -30,24 +45,31 @@ program
 // command code should write before here
 program.parse(process.argv);
 
-if (!program.args.length) {
-    program.help();
-}
-
 function gltfSimplify() {
     let outputPath = program.outputPath;
     let file = program.file;
     let quality = program.quality;
-
-    if (!outputPath || !file || !quality) {
-        program.help();
-    }
 
     let gltfJson = JSON.parse(FS.readFileSync(file, 'utf8'));
 
     let gltfResult = GLTFHandler.simplify(gltfJson, quality);
 
     FS.writeFile(outputPath, JSON.stringify(gltfResult), (error) => {
+        if (error)
+            console.log(error)
+    })
+}
+
+function objSimplify() {
+    let outputPath = program.outputPath;
+    let file = program.file;
+    let quality = program.quality;
+
+    let obj = FS.readFileSync(file, 'utf8');
+
+    let objResult = OBJHandler.simplify(obj, quality);
+
+    FS.writeFile(outputPath, objResult, (error) => {
         if (error)
             console.log(error)
     })
