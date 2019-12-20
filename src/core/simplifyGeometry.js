@@ -208,7 +208,8 @@ function initGeometry(geometryBuffer) {
         }
         triangle.error[3] = Math.min(triangle.error[0], triangle.error[1], triangle.error[2]);
     }
-    vertices = vertices.flat();
+    // vertices = vertices.flat();
+    vertices = flat(vertices);
 
     position = uv = normal = indices = null;
 
@@ -217,6 +218,20 @@ function initGeometry(geometryBuffer) {
     // })
 
     return new GeometryResource(triangles, vertices, []);
+}
+
+function flat(array) {
+    var result = [];
+    array.forEach(a => {
+        if (a instanceof Array) {
+            a.forEach(b => {
+                result.push(b)
+            })
+        } else {
+            result.push(a)
+        }
+    })
+    return result;
 }
 
 function rebuildNormal(geometryResource) {
