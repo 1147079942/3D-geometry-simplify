@@ -4,7 +4,7 @@
 # how to use
  1.if the test script work,you can execute the follow command
  
- <code>node ./src/bin/3DGeometrySimplify.js gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -q 0.5</code>
+ <code>node ./src/bin/3DGeometrySimplify.js gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -m QuadricError -q 0.5</code>
  
  2.install node command
  
@@ -20,7 +20,8 @@
  
  4.example
  
- <code>3DGeometrySimplify gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -q 0.5</code>
+ <code>3DGeometrySimplify gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -m QuadricError -q 0.5</code>
+ <code>3DGeometrySimplify obj -f ./resource/model.obj  -o ./resource/model_1.obj -m VertexClustering -s 5 -n 60</code>
  
  5.support list
  
