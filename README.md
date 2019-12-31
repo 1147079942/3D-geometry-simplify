@@ -23,7 +23,7 @@
  <code>3DGeometrySimplify gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -m QuadricError -q 0.5</code>
  <code>3DGeometrySimplify obj -f ./resource/model.obj  -o ./resource/model_1.obj -m VertexClustering -s 5 -n 60</code>
  
- 5.support list
+ 5.format support list
  
  <li>
   1.gltf
@@ -49,4 +49,4 @@
   <li>b3dm</li>
   
 8.if you are the using gltf-simplify
- please replace to this tool,gltf-simplify will not update anymore 
+ please change to this tool, gltf-simplify will not update anymore 
