@@ -8,24 +8,25 @@ var GeometrySimplifier = function () {
     this.gridSize = null;
     this.segments = null;
 
+    // privates
+
     /**
      * Array<[faces]>: index -> vertexIndex
      */
-    this.vertFaceArray = [];
+    let vertFaceArray = [];
 
     /**
      * Map<gridid, gridinfo>
      * eg. gridid: "0_2_1", gridinfo: { vertices: [], point: [], uvs: [], newUVs: [] }
      */
-    this.gridsmap = new Map();
-    this.xcomp = 0;
-    this.ycomp = 0;
-    this.zcomp = 0;
-    this.xsegs = 0;
-    this.ysegs = 0;
-    this.zsegs = 0;
-
-    // privates
+    let gridsmap = new Map();
+    let xcomp = 0;
+    let ycomp = 0;
+    let zcomp = 0;
+    let xsegs = 0;
+    let ysegs = 0;
+    let zsegs = 0;
+    
     let scope = this;
     let faces, vertices, uvsArr, hasUVs;
     let normalDiffThreshold = Math.cos(60 * Math.PI / 180);
@@ -62,16 +63,16 @@ var GeometrySimplifier = function () {
             hasUVs = false;
         }
 
-        scope.vertFaceArray = new Array(vertices.length);
+        vertFaceArray = new Array(vertices.length);
         for (let i = 0, fl = faces.length; i < fl; i++) {
 
             let face = faces[i];
             face.degenerated = false;
             face.grids = { a: null, b: null, c: null };
 
-            var vertFaceRelation = scope.vertFaceArray[face.a];
+            var vertFaceRelation = vertFaceArray[face.a];
             if (!vertFaceRelation) {
-                scope.vertFaceArray[face.a] = [{
+                vertFaceArray[face.a] = [{
                     f: face,   // the related face
                     i: "a"     // the face index
                 }];
@@ -79,9 +80,9 @@ var GeometrySimplifier = function () {
                 vertFaceRelation.push({ f: face, i: "a" });
             }
 
-            vertFaceRelation = scope.vertFaceArray[face.b];
+            vertFaceRelation = vertFaceArray[face.b];
             if (!vertFaceRelation) {
-                scope.vertFaceArray[face.b] = [{
+                vertFaceArray[face.b] = [{
                     f: face,   // the related face
                     i: "b"     // the face index
                 }];
@@ -89,9 +90,9 @@ var GeometrySimplifier = function () {
                 vertFaceRelation.push({ f: face, i: "b" });
             }
 
-            vertFaceRelation = scope.vertFaceArray[face.c];
+            vertFaceRelation = vertFaceArray[face.c];
             if (!vertFaceRelation) {
-                scope.vertFaceArray[face.c] = [{
+                vertFaceArray[face.c] = [{
                     f: face,   // the related face
                     i: "c"     // the face index
                 }];
@@ -108,7 +109,7 @@ var GeometrySimplifier = function () {
      *
      */
     function initGridsInfo() {
-        scope.gridsmap = new Map();
+        gridsmap = new Map();
         scope.source.computeBoundingBox();
 
         let size = new THREE.Vector3();
@@ -121,23 +122,23 @@ var GeometrySimplifier = function () {
 
         if (scope.gridSize) {
             // use gridSize first
-            scope.xcomp = scope.gridSize;
-            scope.ycomp = scope.gridSize;
-            scope.zcomp = scope.gridSize;
+            xcomp = scope.gridSize;
+            ycomp = scope.gridSize;
+            zcomp = scope.gridSize;
 
-            scope.xsegs = size.x / scope.gridSize;
-            scope.ysegs = size.y / scope.gridSize;
-            scope.zsegs = size.z / scope.gridSize;
+            xsegs = size.x / scope.gridSize;
+            ysegs = size.y / scope.gridSize;
+            zsegs = size.z / scope.gridSize;
 
         } else if (scope.segments) {
             // use segments
-            scope.xcomp = size.x / scope.segments;
-            scope.ycomp = size.y / scope.segments;
-            scope.zcomp = size.z / scope.segments;
+            xcomp = size.x / scope.segments;
+            ycomp = size.y / scope.segments;
+            zcomp = size.z / scope.segments;
 
-            scope.xsegs = scope.segments;
-            scope.ysegs = scope.segments;
-            scope.zsegs = scope.segments;
+            xsegs = scope.segments;
+            ysegs = scope.segments;
+            zsegs = scope.segments;
         }
 
         scope.box = new THREE.Box3().setFromCenterAndSize(center, size);
@@ -152,9 +153,18 @@ var GeometrySimplifier = function () {
      * @returns
      */
     function computeGridid(vertex) {
-        let x = Math.round((vertex.x - scope.box.min.x) / scope.xcomp);
-        let y = Math.round((vertex.y - scope.box.min.y) / scope.ycomp);
-        let z = Math.round((vertex.z - scope.box.min.z) / scope.zcomp);
+        let x = Math.round((vertex.x - scope.box.min.x) / xcomp);
+        let y = Math.round((vertex.y - scope.box.min.y) / ycomp);
+        let z = Math.round((vertex.z - scope.box.min.z) / zcomp);
+
+        // prevent the vertex to be fitted in out-of-box grid (gridid is based on lower bound index)
+        // if (x >= xsegs) x = xsegs - 1;
+        // if (y >= ysegs) y = ysegs - 1;
+        // if (z >= zsegs) z = zsegs - 1;
+
+        // if (x <= 0) x = - 1;
+        // if (y <= 0) y = - 1;
+        // if (z <= 0) z = - 1;
 
         return `${x}_${y}_${z}`;
     }
@@ -171,7 +181,7 @@ var GeometrySimplifier = function () {
         let gridid = computeGridid(vertex);
 
         vertex.gridid = gridid;
-        let grid = scope.gridsmap.get(gridid);
+        let grid = gridsmap.get(gridid);
         if (!!grid) {
             grid.vertices.push(vertex);
         } else {
@@ -181,7 +191,7 @@ var GeometrySimplifier = function () {
                 uvs: [],
                 newUVs: []
             };
-            scope.gridsmap.set(gridid, grid);
+            gridsmap.set(gridid, grid);
         }
         return grid;
     }
@@ -405,8 +415,11 @@ var GeometrySimplifier = function () {
             checkFaceDegen(face);
         }
 
+        console.log("faces.length", faces.length)
+        // let validFaces = faces.filter(f => !f.degenerated);
+
         // set every vertex to be the grid-point-value
-        this.gridsmap.forEach((grid) => {
+        gridsmap.forEach((grid) => {
             if (grid.vertices.length > 0) {
                 if (!grid.point) {
                     computeGridAvgPoint(grid);
@@ -424,9 +437,9 @@ var GeometrySimplifier = function () {
 
 
         // filter out the valid vertices & set valid faces new index
-        for (let i = 0, al = this.vertFaceArray.length; i < al; i++) {
+        for (let i = 0, al = vertFaceArray.length; i < al; i++) {
 
-            let faceArr = this.vertFaceArray[i];
+            let faceArr = vertFaceArray[i];
 
             let vert = vertices[i];
             let findVertex = newGeom.vertices.find(v => v.gridid == vert.gridid);
@@ -462,9 +475,9 @@ var GeometrySimplifier = function () {
                 // set new uvs
                 if (hasUVs) {
                     for (let j = 0, uvl = uvsArr.length; j < uvl; j++) {
-                        let uv0 = this.gridsmap.get(face.grids.a).newUVs[j];
-                        let uv1 = this.gridsmap.get(face.grids.b).newUVs[j];
-                        let uv2 = this.gridsmap.get(face.grids.c).newUVs[j];
+                        let uv0 = gridsmap.get(face.grids.a).newUVs[j];
+                        let uv1 = gridsmap.get(face.grids.b).newUVs[j];
+                        let uv2 = gridsmap.get(face.grids.c).newUVs[j];
                         newGeom.faceVertexUvs[j].push([uv0, uv1, uv2]);
                     }
                 }
