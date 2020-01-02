@@ -9,10 +9,13 @@ let FS = require("fs");
 program
     .option("-f, --file [value]", "the file to simplify", "")
     .option("-o, --outputPath [value]", "the path to write output file", "")
-    .option("-q, --quality <n>", "the quality of the simplified gltf,it should between 0 and 1", parseFloat);
+    .option("-m, --method [value]", "the method used to simply the geometry support [VertexClustering, QuadricError], default is 'QuadricError'", "")
+    .option("-q, --quality <n>", "the quality of the simplified gltf,it should between 0 and 1", parseFloat)
+    .option("-s, --segments <n>", "Used in 'VertexClustering', define the segments to split (needs to be > 1), the lower the segments is, the lower the resulting geometry faces", parseFloat)
+    .option("-n, --normalJoinAngle <n>", "Used in 'VertexClustering', define the angle of normal join, if not provided, will be 60 degrees by default", parseFloat);
 
 program.parse(process.argv);
-if (!program.outputPath || !program.file || !program.quality) {
+if (!program.outputPath || !program.file || (!program.quality&&!program.method)) {
     program.help();
 }
 
@@ -66,8 +69,13 @@ function objSimplify() {
     let quality = program.quality;
 
     let obj = FS.readFileSync(file, 'utf8');
+    let objResult;
+    if(program.method==='VertexClustering'){
+        objResult = OBJHandler.Gsimplify(obj, program.segments, undefined, program.normalJoinAngle);
+    }else{
+        objResult = OBJHandler.simplify(obj, quality);
+    }
 
-    let objResult = OBJHandler.simplify(obj, quality);
 
     FS.writeFile(outputPath, objResult, (error) => {
         if (error)
