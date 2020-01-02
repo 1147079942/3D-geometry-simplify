@@ -15,7 +15,7 @@ var GeometrySimplifier = function () {
 
     /**
      * Map<gridid, gridinfo>
-     * eg. gridid: "0_2_1", gridinfo: { vertices: [], point: [] }
+     * eg. gridid: "0_2_1", gridinfo: { vertices: [], point: [], uvs: [], newUVs: [] }
      */
     this.gridsmap = new Map();
     this.xcomp = 0;
@@ -37,33 +37,29 @@ var GeometrySimplifier = function () {
      */
     function parseGeometry() {
 
+        let source;
         if (scope.source instanceof THREE.Geometry) {
 
-            faces = scope.source.faces.map(face => face.clone());
-            vertices = scope.source.vertices.map(vert => vert.clone());
-            uvsArr = scope.source.faceVertexUvs;
-            if (uvsArr.length > 0 && uvsArr[0].length > 0) {
-                hasUVs = true;
-            } else {
-                hasUVs = false;
-            }
+            source = scope.source;
 
         } else if (scope.source instanceof THREE.BufferGeometry) {
 
-            let source = new THREE.Geometry().fromBufferGeometry(scope.source);
-            faces = source.faces.map(face => face.clone());
-            vertices = source.vertices.map(vert => vert.clone());
-            uvsArr = source.faceVertexUvs;
-            if (uvsArr.length > 0 && uvsArr[0].length > 0) {
-                hasUVs = true;
-            } else {
-                hasUVs = false;
-            }
+            source = new THREE.Geometry().fromBufferGeometry(scope.source);
 
         } else {
 
             console.error("The geometry to be simplified is neither 'THREE.Geometry' nor 'THREE.BufferGeometry' ");
 
+        }
+
+        faces = source.faces.map(face => face.clone());
+        vertices = source.vertices.map(vert => vert.clone());
+        uvsArr = source.faceVertexUvs;
+
+        if (uvsArr.length > 0 && uvsArr[0].length > 0) {
+            hasUVs = true;
+        } else {
+            hasUVs = false;
         }
 
         scope.vertFaceArray = new Array(vertices.length);
@@ -156,14 +152,9 @@ var GeometrySimplifier = function () {
      * @returns
      */
     function computeGridid(vertex) {
-        let x = 0 | ((vertex.x - scope.box.min.x) / scope.xcomp);
-        let y = 0 | ((vertex.y - scope.box.min.y) / scope.ycomp);
-        let z = 0 | ((vertex.z - scope.box.min.z) / scope.zcomp);
-
-        // prevent the vertex to be fitted in out-of-box grid (gridid is based on lower bound index)
-        if (x >= scope.xsegs) x = scope.xsegs - 1;
-        if (y >= scope.ysegs) y = scope.ysegs - 1;
-        if (z >= scope.zsegs) z = scope.zsegs - 1;
+        let x = Math.round((vertex.x - scope.box.min.x) / scope.xcomp);
+        let y = Math.round((vertex.y - scope.box.min.y) / scope.ycomp);
+        let z = Math.round((vertex.z - scope.box.min.z) / scope.zcomp);
 
         return `${x}_${y}_${z}`;
     }
@@ -383,7 +374,7 @@ var GeometrySimplifier = function () {
             // errorThreshold = gridSize * sqrt(3) / 2
             this.gridSize = Math.max(params.errorThreshold, 0.001) * 2 / 1.7320508075688772;
         }
-        
+
 
         let normalJoinAngle = params.normalJoinAngle || 60;
         normalDiffThreshold = Math.cos(normalJoinAngle * Math.PI / 180);
@@ -413,9 +404,6 @@ var GeometrySimplifier = function () {
 
             checkFaceDegen(face);
         }
-
-        // console.log("faces.length", faces.length)
-        // let validFaces = faces.filter(f => !f.degenerated);
 
         // set every vertex to be the grid-point-value
         this.gridsmap.forEach((grid) => {
