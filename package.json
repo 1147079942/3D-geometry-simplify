@@ -1,11 +1,12 @@
 {
   "name": "3d-geometry-simplify",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "a simplify algorithm to reduce trangles number.",
   "main": "index.js",
   "scripts": {
-    "gltfSimplifyTest": "node ./src/bin/3DGeometrySimplify.js gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -q 0.5",
-    "objSimplifyTest": "node ./src/bin/3DGeometrySimplify.js obj -f ./resource/model.obj  -o ./resource/model_1.obj -q 0.1"
+    "gltfSimplifyTest": "node $NODE_DEBUG_OPTION ./src/bin/3DGeometrySimplify.js gltf -f ./resource/cup-metalblue.gltf  -o ./resource/cup-metalblue_1.gltf -q 0.5",
+    "objSimplifyTest": "node $NODE_DEBUG_OPTION ./src/bin/3DGeometrySimplify.js obj -f ./resource/model.obj  -o ./resource/model_1.obj -q 0.5",
+    "objVertexClusterSimplifyTest": "node $NODE_DEBUG_OPTION ./src/bin/3DGeometrySimplify.js obj -f ./resource/sphere.obj  -o ./resource/sphere_1.obj -m VertexClustering -s 5 -n 60"
   },
   "repository": {
     "type": "git",
@@ -26,9 +27,7 @@
     "url": "https://github.com/1147079942/3D-geometry-simplify/issues"
   },
   "homepage": "https://github.com/1147079942/3D-geometry-simplify#readme",
-  "devDependencies": {
-    "node": "^13.1.0"
-  },
+  "devDependencies": {},
   "bin": {
     "3DGeometrySimplify": "./src/bin/3DGeometrySimplify.js"
   }

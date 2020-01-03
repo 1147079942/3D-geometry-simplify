@@ -2,8 +2,10 @@ let loader = require("./OBJLoader");
 let exporter = require("./OBJExporter");
 let SimplifyGeometry = require("../../core/simplifyGeometry");
 let THREE = require("three");
+let GeometrySimplifierYY = require("../../core/GeometrySimplifierYY");
 let GeometryBuffer = SimplifyGeometry.GeometryBuffer;
 let runDecimation = SimplifyGeometry.runDecimation;
+let GeometrySimplifier = GeometrySimplifierYY.GeometrySimplifier;
 
 function simplify(obj, quality) {
     let objLoader = new loader.OBJLoader();
@@ -35,6 +37,29 @@ function simplify(obj, quality) {
     // OBJExporter
 }
 
+// VertexClustering
+function Gsimplify(obj, segments, errorThreshold, normJoinAngle) {
+    let objLoader = new loader.OBJLoader();
+    let objExporter = new exporter.OBJExporter();
+    let parse = objLoader.parse(obj);
+    let result = "";
+    let geomSimplifier = new GeometrySimplifier();
+    parse.children.forEach(mesh => {
+        let geometry = mesh.geometry;
+        let newGeom = geomSimplifier.simplify(geometry, {
+            segments: segments, 
+            // errorThreshold: errorThreshold || 0.001, 
+            normJoinAngle: normJoinAngle || 75
+        })
+        console.log("faces: ", newGeom.faces.length)
+        mesh.geometry = newGeom;
+        result += objExporter.parse(mesh) + "\n";
+    });
+
+    return result;
+}
+
+
 // build index if mesh do not has index and use drawmode 0
 function reBuildIndex(position) {
     let uint32Array = new Uint32Array(position.count);
@@ -47,5 +72,6 @@ function reBuildIndex(position) {
 }
 
 module.exports = {
-    simplify
+    simplify,
+    Gsimplify
 };
