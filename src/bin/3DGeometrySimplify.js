@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 let program = require("commander");
 let pkg = require("../../package");
-let GLTFHandler = require("../handler/gltfHandler");
+let GLTFHandler = require("../handler/gltf/gltfHandler");
 let OBJHandler = require("../handler/obj/objHandler");
 let FS = require("fs");
 
@@ -15,7 +15,7 @@ program
     .option("-n, --normalJoinAngle <n>", "Used in 'VertexClustering', define the angle of normal join, if not provided, will be 60 degrees by default", parseFloat);
 
 program.parse(process.argv);
-if (!program.outputPath || !program.file || (!program.quality&&!program.method)) {
+if (!program.outputPath || !program.file || (!program.quality && !program.method)) {
     program.help();
 }
 
@@ -53,10 +53,13 @@ function gltfSimplify() {
     let file = program.file;
     let quality = program.quality;
 
-    let gltfJson = JSON.parse(FS.readFileSync(file, 'utf8'));
-
-    let gltfResult = GLTFHandler.simplify(gltfJson, quality);
-
+    let gltfJson = FS.readFileSync(file, 'utf8');
+    let gltfResult;
+    // if (program.method === 'VertexClustering') {
+    //     gltfResult = GLTFHandler.Gsimplify(gltfJson, program.segments, undefined, program.normalJoinAngle);
+    // } else {
+    gltfResult = GLTFHandler.simplify(JSON.parse(gltfJson), quality);
+    // }
     FS.writeFile(outputPath, JSON.stringify(gltfResult), (error) => {
         if (error)
             console.log(error)
@@ -70,9 +73,9 @@ function objSimplify() {
 
     let obj = FS.readFileSync(file, 'utf8');
     let objResult;
-    if(program.method==='VertexClustering'){
+    if (program.method === 'VertexClustering') {
         objResult = OBJHandler.Gsimplify(obj, program.segments, undefined, program.normalJoinAngle);
-    }else{
+    } else {
         objResult = OBJHandler.simplify(obj, quality);
     }
 

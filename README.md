@@ -26,7 +26,7 @@
  5.format support list
  
  <li>
-  1.gltf
+  1.gltf(VertexClustering not support)
  </li>
  <li>
   2.obj

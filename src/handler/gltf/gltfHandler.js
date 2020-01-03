@@ -1,5 +1,5 @@
 let FS = require("fs");
-let SimplifyGeometry = require("../core/simplifyGeometry.js");
+let SimplifyGeometry = require("../../core/simplifyGeometry.js");
 
 /**
  *
