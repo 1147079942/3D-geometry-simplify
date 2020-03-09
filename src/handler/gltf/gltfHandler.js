@@ -1,5 +1,5 @@
 let FS = require("fs");
-let SimplifyGeometry = require("../core/simplifyGeometry.js");
+let SimplifyGeometry = require("../../core/simplifyGeometry.js");
 
 /**
  *
@@ -117,11 +117,13 @@ function simplify(gltf, quality) {
     let totalOrgOffset = 0;
 
     accessors.forEach((accessor, index) => {
-        if (changedBuffer[0].accessor === index) {
-            let changedB = changedBuffer.shift();
-            newAccessors[index] = changedB;
+        let find = changedBuffer.find((buffer) => {
+            if (buffer.accessor === index) return buffer;
+        });
+        if (find) {
+            newAccessors[index] = find;
             newAccessors[index].offset = totalOrgOffset;
-            totalOrgOffset += changedB.buffer.length;
+            totalOrgOffset += find.buffer.length;
         } else {
             let bufferView = bufferViews[accessor.bufferView];
             let accessorByteOffset = accessor.byteOffset || 0;
